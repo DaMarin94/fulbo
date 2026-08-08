@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/*
+ * Fulbo — tokens de diseño.
+ * Fuente: docs/design.md § 3.4 (paleta), § 4.3 (tipografía), § 5 (espaciado/radios).
+ * Adaptado de docs/design-handoff/tokens.css (verificado contra design.md), con dos
+ * agregados que el handoff no traía: --shadow-1 (§ 3.5) y --radius-full (§ 5).
+ * Tailwind v4: los tokens dentro de @theme generan utilidades automáticamente
+ * (bg-surface, text-text-2, rounded-full, wide:flex-row...). Los nombres son
+ * los normativos de design.md.
+ */
+@theme {
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+
+  --color-bg: #f6f6f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f0f5;
+  --color-border: #e3e3eb;
+  --color-text-1: #15151b;
+  --color-text-2: #5a5a68;
+  --color-text-3: #70707f;
+  --color-live: #0f7a3d;
+  --color-danger: #c02626;
+  --color-warn: #9a5b00;
+  --color-brand: #5b3fd6;
+  --color-brand-strong: #4a2fb0;
+  --color-brand-soft: #efebff;
+  --color-focus: var(--color-brand);
+
+  --text-xs: 12px;
+  --text-xs--line-height: 1.4;
+  --text-sm: 14px;
+  --text-sm--line-height: 1.45;
+  --text-base: 16px;
+  --text-base--line-height: 1.5;
+  --text-lg: 18px;
+  --text-lg--line-height: 1.2;
+  --text-xl: 22px;
+  --text-xl--line-height: 1.25;
+
+  --spacing: 4px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  /* No estaba en el handoff — agregado según § 5 (punto de "en vivo", avatares). */
+  --radius-full: 9999px;
+
+  /* No estaba en el handoff — agregado según § 3.5 (solo se usa en modo claro). */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.06);
+
+  /* § 8.1 — único umbral de la app. Genera la variante Tailwind `wide:`. */
+  --breakpoint-wide: 768px;
+}
+
+@layer base {
+  /* — modo oscuro — § 3.4 / § 3.5. NO es el claro invertido: los neutros llevan
+     un tinte frío hacia el violeta de marca. La profundidad la da el escalón
+     bg → surface → surface-2, no la sombra (en oscuro no se ve). — */
+  :root[data-theme='dark'] {
+    --color-bg: #0e0e13;
+    --color-surface: #17171f;
+    --color-surface-2: #1f1f29;
+    --color-border: #2a2a36;
+    --color-text-1: #f2f2f5;
+    --color-text-2: #a8a8b8;
+    --color-text-3: #86869a;
+    --color-live: #3dd07a;
+    --color-danger: #ff6b6b;
+    --color-warn: #f5b54a;
+    --color-brand: #9b87ff;
+    --color-brand-strong: #b3a3ff;
+    --color-brand-soft: #241c4a;
+    /* § 3.5 / § 9.2 — en oscuro no hay sombra: la profundidad la da el escalón
+       de superficie y el borde de 1px, que ya está siempre presente. Override
+       a nivel de token para que la utilidad `shadow-1` se pueda usar sin
+       condicional en los componentes (headers fijos, tarjeta de Error). */
+    --shadow-1: none;
+  }
+
+  /* Alias con los nombres normativos de docs/design.md, para que una lectura del
+     doc y una lectura del CSS coincidan literal (uso en CSS suelto, no en JSX). */
+  :root {
+    --fs-xs: var(--text-xs);
+    --fs-sm: var(--text-sm);
+    --fs-base: var(--text-base);
+    --fs-lg: var(--text-lg);
+    --fs-xl: var(--text-xl);
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --bp-wide: 768px;
+  }
+
+  /* § 8.1 — por debajo de 320px la app no promete contención; el shell mantiene
+     un piso de 320px y el documento puede panear horizontalmente en vez de romper. */
+  html {
+    min-inline-size: 320px;
+    color-scheme: light;
+  }
+  html[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-1);
+    font-family: var(--font-sans);
+  }
+
+  /* § 6 — el foco es obligatorio y `outline: none` está prohibido en toda la app. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* § 4.2 — todo dato numérico va tabular. Se aplica por clase, elemento por
+     elemento (no globalmente: el tabular en texto corrido empeora la lectura). */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* § 6 — el punto de "en vivo" pulsa; se apaga con prefers-reduced-motion. */
+  @keyframes fulbo-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  .animate-fulbo-pulse {
+    animation: fulbo-pulse 2.4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fulbo-pulse {
+      animation: none;
+    }
+  }
+}
+
+@layer components {
+  /* § 3.3 — afordancia de link sin color: el subrayado es la señal, no el texto.
+     currentColor al 30% en reposo, 2px --color-brand en hover/focus/active. */
+  .link-underline {
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible,
+  .link-underline:active {
+    text-decoration-color: var(--color-brand);
+    text-decoration-thickness: 2px;
+  }
+}

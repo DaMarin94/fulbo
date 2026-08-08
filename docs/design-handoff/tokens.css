@@ -1,0 +1,99 @@
+/* Fulbo — tokens
+ * Fuente: docs/design.md § 3.4 (paleta), § 4.3 (escala tipográfica), § 5 (espaciado, radios).
+ * Tailwind v4: los tokens viven en @theme, que además genera las utilidades (bg-surface, text-text-2, …).
+ * Los nombres de docs/design.md son normativos. Donde Tailwind v4 exige un namespace propio
+ * (--text-*, --spacing-*), el token de la guía queda como alias en @layer base — abajo.
+ * NO agregar colores acá sin verificar AA ≥4.5:1 en los dos modos (§ 3.4). */
+
+@import "tailwindcss";
+
+@theme {
+  /* — familia — § 4.1. PENDIENTE: Inter Variable auto-hospedada (ver spec.md § 9). */
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* — color: modo claro (default) — § 3.4 — */
+  --color-bg: #F6F6F9;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F0F0F5;
+  --color-border: #E3E3EB;
+  --color-text-1: #15151B;
+  --color-text-2: #5A5A68;
+  --color-text-3: #70707F;
+  --color-live: #0F7A3D;
+  --color-danger: #C02626;
+  --color-warn: #9A5B00;
+  --color-brand: #5B3FD6;
+  --color-brand-strong: #4A2FB0;
+  --color-brand-soft: #EFEBFF;
+  --color-focus: var(--color-brand);
+
+  /* — tipografía — § 4.3. 5 pasos, cerrada. No inventar tamaños intermedios. — */
+  --text-xs: 12px;        --text-xs--line-height: 1.4;
+  --text-sm: 14px;        --text-sm--line-height: 1.45;
+  --text-base: 16px;      --text-base--line-height: 1.5;
+  --text-lg: 18px;        --text-lg--line-height: 1.2;
+  --text-xl: 22px;        --text-xl--line-height: 1.25;
+
+  /* — espaciado — § 5. base 4px; escala cerrada 4·8·12·16·24·32 — */
+  --spacing: 4px;
+
+  /* — radios — § 5 — */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+
+  /* — umbral responsive — § Contención responsive. Compacta 320–767, amplia ≥768 — */
+  --breakpoint-wide: 768px;
+}
+
+@layer base {
+  /* — modo oscuro — § 3.4 / § 3.5. NO es el claro invertido: los neutros llevan
+     un tinte frío hacia el violeta de marca. La profundidad la da el escalón
+     bg → surface → surface-2, no la sombra (en oscuro no se ve). — */
+  :root[data-theme="dark"] {
+    --color-bg: #0E0E13;
+    --color-surface: #17171F;
+    --color-surface-2: #1F1F29;
+    --color-border: #2A2A36;
+    --color-text-1: #F2F2F5;
+    --color-text-2: #A8A8B8;
+    --color-text-3: #86869A;
+    --color-live: #3DD07A;
+    --color-danger: #FF6B6B;
+    --color-warn: #F5B54A;
+    --color-brand: #9B87FF;
+    --color-brand-strong: #B3A3FF;
+    --color-brand-soft: #241C4A;
+  }
+
+  /* Alias con los nombres normativos de docs/design.md, para que una lectura
+     del doc y una lectura del CSS coincidan literal. Usalos en CSS suelto;
+     en JSX preferí las utilidades de Tailwind. */
+  :root {
+    --fs-xs: var(--text-xs);
+    --fs-sm: var(--text-sm);
+    --fs-base: var(--text-base);
+    --fs-lg: var(--text-lg);
+    --fs-xl: var(--text-xl);
+    --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+    --space-4: 16px; --space-5: 24px; --space-6: 32px;
+    --bp-wide: 768px;
+  }
+
+  /* — § 6.2: el foco es obligatorio y `outline: none` está prohibido. — */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* — § 3.4 / § 4.2: todo dato numérico va tabular. Se aplica por clase
+     (.tnum) elemento por elemento, no globalmente: el tabular en texto
+     corrido empeora la lectura. — */
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* — § 6.2: el punto de "en vivo" pulsa; se apaga con reduced-motion. — */
+  @keyframes fulbo-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fulbo-pulse { animation: none }
+  }
+  .animate-fulbo-pulse { animation: fulbo-pulse 2.4s ease-in-out infinite }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fulbo</title>
+    <!--
+      Resolución del tema ANTES del primer pintado (docs/design.md § 3.6: "sin flash
+      de tema"). Corre sincrónico, antes que cualquier CSS/JS de la app, para que el
+      atributo data-theme ya esté puesto cuando el navegador pinta el primer frame.
+      La CLAVE DE STORAGE y los tres valores válidos tienen que coincidir siempre con
+      src/theme/theme.ts (THEME_STORAGE_KEY) — es la única duplicación tolerada, porque este script no
+      puede importar un módulo TS sin volverse asíncrono (y perder la garantía de "antes
+      del pintado").
+    -->
+    <script>
+      ;(function () {
+        var STORAGE_KEY = 'fulbo:theme-preference'
+        var stored = null
+        try {
+          stored = window.localStorage.getItem(STORAGE_KEY)
+        } catch (e) {
+          /* localStorage no disponible (modo privado, etc.): se usa el default. */
+        }
+        var preference =
+          stored === 'light' || stored === 'dark' || stored === 'auto' ? stored : 'auto'
+        var systemPrefersDark =
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        var resolved = preference === 'auto' ? (systemPrefersDark ? 'dark' : 'light') : preference
+        if (resolved === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -34,6 +34,8 @@ Relación mínima conocida: un **Partido** pertenece a una **Competición** y vi
 
 RNF-001 exige llevar registro propio de los requests consumidos por día contra API-Football, porque la API no expone necesariamente ese dato. Eso requiere **una entidad propia de la app** (tipo `ApiUsage` o similar) que registre el consumo diario, fuera del espejo de datos deportivos.
 
+El contador es **interno del backend**: ningún contrato hacia los clientes expone el consumo, el remanente ni un flag de cuota agotada (RF-006).
+
 > **PENDIENTE — relevamiento técnico:** el shape concreto (granularidad por día vs. por request, qué se guarda de cada llamado) se cierra junto con el relevamiento de la API y con la estrategia de caché del backend. Si API-Football sí expone el consumo restante en las respuestas, se evalúa usarlo como fuente y el contador propio queda como respaldo.
 
 ## Contratos de API (backend → clientes)

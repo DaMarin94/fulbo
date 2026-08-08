@@ -18,7 +18,8 @@ Aplican a las pantallas de fixtures (Inicio, Competición, Equipo), salvo que se
 | Cargando | Indicador de carga simple (skeleton o spinner). |
 | Vacío | Mensaje de que no hay partidos para ese contexto. |
 | Error | Mensaje con acción de **reintentar**. |
-| Error por cuota agotada | Mensaje **específico** de cuota diaria de API-Football agotada (RF-006), no el error genérico. |
+
+La cuota agotada de API-Football **no es un estado de pantalla** (RF-006): la pantalla muestra los datos que hay en caché, sin bifurcación visual respecto de datos frescos.
 
 ## Inicio
 

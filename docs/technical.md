@@ -13,7 +13,7 @@ Patrones que aplican a todo el código. Si algo no está acá, se pregunta antes
 **Frontend**
 - Todas las llamadas al backend pasan por una **capa central de HTTP**. Ningún componente hace `fetch` suelto.
 - El error se le muestra al usuario en **toast**.
-- Caso especial: cuota de API-Football agotada → mensaje específico, no genérico (RF-006).
+- La cuota de API-Football agotada **no es un caso especial de esta capa**: no produce mensaje ni tratamiento propio en el frontend (RF-006).
 
 ## Validación
 

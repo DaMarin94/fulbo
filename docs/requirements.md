@@ -19,7 +19,7 @@ No es una app de apuestas ni un juego.
 | RF-003 | Se pueden ver **todos los partidos de una competición**, accediendo desde el nombre de la competición en un partido. |
 | RF-004 | Se puede ver el **fixture propio de un equipo**, accediendo desde el nombre del equipo en un partido. |
 | RF-005 | Hay un **equipo favorito predefinido**, fijado fuera de la UI (configuración del backend); no se elige desde ninguna pantalla. La app permite ver su **fixture filtrado** solo para ese equipo. |
-| RF-006 | Cuando se agota la cuota diaria de la API externa (RNF-001), la app lo informa con un **mensaje específico**, distinto del error genérico. |
+| RF-006 | El agotamiento de la cuota diaria de la API externa (RNF-001) es **transparente para el usuario**: la app sigue sirviendo los últimos datos guardados en caché, **sin ninguna distinción** respecto de datos frescos (ni aviso, ni mensaje, ni tratamiento visual propio). Queda registrado únicamente en el logging interno del backend (`docs/technical.md` § Logging). |
 | RF-007 | El usuario puede **elegir el tema** entre tres opciones —**Claro**, **Oscuro** y **Automático**— desde un control en la UI. **Automático** sigue el tema del sistema operativo y se actualiza solo si el sistema cambia mientras la app está abierta; es el estado por default hasta que el usuario elige explícitamente Claro u Oscuro, y puede volver a elegirse en cualquier momento. |
 
 **Flujo principal end-to-end:** entrar a la app → ver los fixtures del día. Si eso no anda, el producto no existe.
