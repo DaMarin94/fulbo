@@ -1,10 +1,15 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { HomeScreen } from './HomeScreen'
 import { MOCK_EMPTY_DATE, MOCK_ERROR_DATE } from '../data/mockFixtures'
 import { parseLocalDateKey } from '../lib/dateFormat'
+import { VIEW_STORAGE_KEY } from '../view/viewPreference'
+
+afterEach(() => {
+  window.localStorage.clear()
+})
 
 function renderHome(initialDate?: Date) {
   return render(
@@ -22,7 +27,7 @@ describe('HomeScreen', () => {
     expect(screen.queryByRole('link', { name: 'Fulbo' })).not.toBeInTheDocument()
   })
 
-  it('muestra "Ajustes", que linkea a Configuración', () => {
+  it('"Ajustes" es un ícono con nombre accesible "Ajustes", que linkea a Configuración', () => {
     renderHome()
     expect(screen.getByRole('link', { name: 'Ajustes' })).toHaveAttribute('href', '/configuracion')
   })
@@ -38,18 +43,18 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('status', { name: 'Cargando partidos' })).toBeInTheDocument()
   })
 
-  it('agrupa los partidos del día por competición, cada grupo con link a Competición', async () => {
+  it('default: agrupa por torneo (RF-008), cada grupo con link a Competición', async () => {
     renderHome()
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
-    expect(screen.getByRole('link', { name: 'PRIMERA A' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Primera A' })).toHaveAttribute(
       'href',
       '/competicion/primera-a',
     )
-    expect(screen.getByRole('link', { name: 'LIBERTADORES' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Libertadores' })).toHaveAttribute(
       'href',
       '/competicion/libertadores',
     )
-    expect(screen.getByRole('link', { name: 'SUDAMERICANA' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Sudamericana' })).toHaveAttribute(
       'href',
       '/competicion/sudamericana',
     )
@@ -79,10 +84,59 @@ describe('HomeScreen', () => {
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
   })
 
-  it('un partido en vivo se ve dentro de su grupo de competición', async () => {
+  it('un partido en vivo se ve dentro de su grupo, con la etiqueta "En vivo"', async () => {
     renderHome()
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
-    const primeraA = screen.getByRole('link', { name: 'PRIMERA A' }).closest('div')!
-    expect(within(primeraA).getAllByText('EN VIVO').length).toBeGreaterThan(0)
+    const primeraA = screen
+      .getByRole('link', { name: 'Primera A' })
+      .closest('[data-testid="home-group"]') as HTMLElement
+    expect(within(primeraA).getAllByText(/^En vivo/).length).toBeGreaterThan(0)
+  })
+
+  describe('conmutador de vista (RF-008)', () => {
+    it('muestra la píldora con la vista vigente ("Torneo" por default) y alterna al tocarla', async () => {
+      const user = userEvent.setup()
+      renderHome()
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+
+      const switcher = screen.getByRole('button', { name: /vista por torneo/i })
+      expect(switcher).toHaveTextContent('Torneo')
+
+      await user.click(switcher)
+      expect(screen.getByRole('button', { name: /vista por horario/i })).toHaveTextContent(
+        'Horario',
+      )
+      // Vista por horario: el titular pasa a ser la hora; "Primera A" sigue existiendo,
+      // pero ahora como subtítulo (puede repetirse, uno por franja horaria).
+      const primeraALinks = screen.getAllByRole('link', { name: 'Primera A' })
+      expect(primeraALinks.length).toBeGreaterThan(0)
+      primeraALinks.forEach((link) => expect(link).toHaveAttribute('href', '/competicion/primera-a'))
+    })
+
+    it('la vista elegida persiste en localStorage y sobrevive a un remount', async () => {
+      const user = userEvent.setup()
+      const { unmount } = renderHome()
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+
+      await user.click(screen.getByRole('button', { name: /vista por torneo/i }))
+      expect(window.localStorage.getItem(VIEW_STORAGE_KEY)).toBe('byTime')
+      unmount()
+
+      renderHome()
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+      expect(screen.getByRole('button', { name: /vista por horario/i })).toBeInTheDocument()
+    })
+
+    it('cambiar de vista y navegar de día mantiene la vista elegida', async () => {
+      const user = userEvent.setup()
+      renderHome()
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+
+      await user.click(screen.getByRole('button', { name: /vista por torneo/i }))
+      await user.click(screen.getByRole('button', { name: 'Día siguiente' }))
+      await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+
+      expect(screen.getByRole('button', { name: /vista por horario/i })).toBeInTheDocument()
+    })
   })
 })

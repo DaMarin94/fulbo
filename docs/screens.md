@@ -27,18 +27,31 @@ La cuota agotada de API-Football **no es un estado de pantalla** (RF-006): la pa
 
 **Contenido** — por cada partido: horario, los dos equipos, resultado (si aplica) y la competición a la que pertenece. Datos servidos por el backend desde su caché de API-Football.
 
+**Dos vistas de agrupación (RF-008).** Los partidos del día se muestran agrupados de una de dos formas, a elección del usuario:
+
+| Vista | Agrupa por | Dentro de cada grupo |
+|-------|-----------|----------------------|
+| **Por torneo** (default) | competición | subgrupos por horario |
+| **Por horario** | hora de inicio | subgrupos por competición |
+
+- Las dos vistas muestran **los mismos partidos del mismo día**, con los mismos datos por partido: solo cambia la agrupación.
+- El **conmutador de vista** vive en esta pantalla y alterna entre las dos. Es el único lugar del producto donde existe: Competición y Equipo no lo tienen.
+- La vista elegida **se mantiene al navegar día a día**: cambiar de día no la reinicia. También se mantiene al volver a Inicio desde Competición o Equipo, y **persiste entre sesiones** en el mismo dispositivo y navegador (RF-008).
+- Ninguna de las dos vistas divide la lista entre partidos jugados y partidos por jugar: la agrupación es la única estructura de la lista.
+
 **Acciones**
 - Ir al **día anterior** / **día siguiente**.
+- **Cambiar la vista** entre por torneo y por horario.
 - Click en el nombre de la **competición** → pantalla Competición.
 - Click en el nombre de un **equipo** → pantalla Equipo.
 
-**Estado vacío:** "no hay partidos este día".
+**Estado vacío:** "no hay partidos este día". Es el mismo en las dos vistas.
 
 ## Competición
 
 **Propósito:** ver todos los partidos de una competición.
 
-**Contenido:** lista de partidos de esa competición, con los mismos datos por partido que Inicio.
+**Contenido:** lista de partidos de esa competición, con los mismos datos por partido que Inicio, **agrupada por fecha** y, dentro de cada fecha, en **subgrupos por horario**. El horario de un partido se lee en el subgrupo al que pertenece. No hay conmutador de vista: la agrupación es siempre esta.
 
 **Acciones**
 - Click en el nombre de un **equipo** → pantalla Equipo.
@@ -50,7 +63,7 @@ La cuota agotada de API-Football **no es un estado de pantalla** (RF-006): la pa
 
 **Propósito:** ver el fixture propio de un equipo, incluido el equipo favorito.
 
-**Contenido:** lista de partidos de ese equipo, con los mismos datos por partido que Inicio, filtrada solo para ese equipo.
+**Contenido:** lista de partidos de ese equipo, con los mismos datos por partido que Inicio, filtrada solo para ese equipo. La lista no se agrupa: cada partido trae su propio contexto —**fecha, horario y competición**, juntos— además de los equipos y el resultado.
 
 **Acciones**
 - Click en el nombre de la **competición** de un partido → pantalla Competición.

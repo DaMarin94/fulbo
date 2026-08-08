@@ -29,6 +29,16 @@ Debe cubrir explícitamente el **consumo de la cuota de API-Football** (RNF-001)
 
 > **PENDIENTE (no bloqueante):** la librería concreta de logging (pino, winston u otra) se elige al implementar el backend.
 
+## Mobile-first
+
+RNF-004 es una regla de desarrollo, no solo de diseño:
+
+- Se implementa y se verifica **primero a 320px**, el ancho mínimo soportado. No se construye para escritorio y se "prueba después en mobile".
+- Los estilos base son los del ancho mínimo; los anchos mayores se agregan con media queries hacia arriba, nunca con `max-width` para parchear.
+- Toda pantalla nueva o modificada se revisa a 320px antes de darse por terminada.
+
+Breakpoints y detalle visual: `docs/design.md` § 1.
+
 ## Testing
 
 - **Framework: Vitest**, en frontend y backend.

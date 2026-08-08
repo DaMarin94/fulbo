@@ -1,24 +1,31 @@
+import { groupPreservingOrder, TBD_LABEL, timeLabelFor } from './groupingShared'
+import { sortFixturesChronologically } from '../data/proximosCut'
 import type { Competition, Fixture } from '../types/fixture'
 
-export interface CompetitionGroup {
-  competition: Competition
+export interface TimeSubgroup {
+  timeLabel: string
   fixtures: Fixture[]
 }
 
+export interface CompetitionGroup {
+  competition: Competition
+  subgroups: TimeSubgroup[]
+}
+
 /**
- * Agrupa por competición (docs/design.md § 7.1, Inicio). El orden de los
- * grupos es el de primera aparición en `fixtures` — no hay una jerarquía de
- * competiciones definida en la doc, así que no se inventa una.
+ * Vista **por torneo** de Inicio (RF-008, docs/design.md § 7.1): agrupa por
+ * competición y, dentro de cada una, por horario. El orden de los grupos de
+ * competición es el de primera aparición en `fixtures` (no hay jerarquía de
+ * competiciones definida); dentro de cada competición, los subgrupos de
+ * horario van cronológicos, con "A confirmar" al final.
  */
 export function groupFixturesByCompetition(fixtures: Fixture[]): CompetitionGroup[] {
-  const groups = new Map<string, CompetitionGroup>()
-  for (const fixture of fixtures) {
-    const existing = groups.get(fixture.competition.id)
-    if (existing) {
-      existing.fixtures.push(fixture)
-    } else {
-      groups.set(fixture.competition.id, { competition: fixture.competition, fixtures: [fixture] })
-    }
-  }
-  return Array.from(groups.values())
+  const sorted = sortFixturesChronologically(fixtures)
+  return groupPreservingOrder(sorted, (fixture) => fixture.competition.id).map(({ items }) => ({
+    competition: items[0].competition,
+    subgroups: groupPreservingOrder(items, timeLabelFor, TBD_LABEL).map(({ key, items: subItems }) => ({
+      timeLabel: key,
+      fixtures: subItems,
+    })),
+  }))
 }

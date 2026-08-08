@@ -5,6 +5,7 @@ import {
   formatAbsoluteDate,
   formatDayLabel,
   formatFullDateProse,
+  formatKickoffTime,
   formatShortNumericDate,
   isSameLocalDay,
   parseLocalDateKey,
@@ -105,6 +106,16 @@ describe('formatFullDateProse', () => {
 
   it('con año cuando difiere', () => {
     expect(formatFullDateProse(new Date(2027, 3, 18), TODAY)).toBe('domingo 18 de abril de 2027')
+  })
+})
+
+describe('formatKickoffTime', () => {
+  it('devuelve "—" cuando no hay hora (a confirmar)', () => {
+    expect(formatKickoffTime(null)).toBe('—')
+  })
+
+  it('formatea la hora en formato HH:mm de 24hs', () => {
+    expect(formatKickoffTime('2026-08-07T18:00:00Z')).toMatch(/^\d{2}:\d{2}$/)
   })
 })
 

@@ -24,7 +24,7 @@ export interface Competition {
   id: string
   /** Nombre completo, ej. "Primera A — Argentina". Usado como título de pantalla. */
   name: string
-  /** Forma corta cerrada en docs/design.md § 7.3, ej. "PRIMERA A". */
+  /** Forma corta cerrada en docs/design.md § 7.3, ej. "Primera A" (capitalizada, no en mayúsculas). */
   shortName: string
 }
 

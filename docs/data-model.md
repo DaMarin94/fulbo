@@ -8,6 +8,7 @@ Destino canónico de entidades, shapes de request/response y contratos de API. L
 - **No hay auditoría de usuario** (creado/modificado por quién) sobre los datos deportivos: no hay usuarios ni escritura de dominio.
 - **No hay borrado lógico** de datos deportivos: lo que se guarda es espejo de la API y se refresca contra ella.
 - La única entidad que **no** es espejo de la API es el contador de consumo (ver más abajo).
+- **La agrupación elegida en la pantalla de entrada (RF-008) no es parte de este modelo.** Vive en el `localStorage` del cliente: no es una entidad, no pasa por Prisma/SQLite y no tiene contrato de API. El backend no la conoce ni la recibe. No modelarla como si fuera parte de la caché.
 
 ## Entidades
 

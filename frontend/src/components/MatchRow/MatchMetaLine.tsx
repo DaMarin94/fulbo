@@ -1,35 +1,47 @@
 import { Link } from 'react-router-dom'
-import type { Competition } from '../../types/fixture'
+import { CompetitionMarkIcon } from '../icons/CompetitionMarkIcon'
+import { formatKickoffTime, formatShortNumericDate } from '../../lib/dateFormat'
+import type { Fixture } from '../../types/fixture'
 
 interface MatchMetaLineProps {
-  /** Fecha ya formateada — "dom 19/04" (§ 10.3). No es link. */
-  dateLabel: string
-  competition: Competition
+  fixture: Fixture
   /** Compacta: alineada a la izquierda. Amplia: centrada sobre el eje (§ 8.4). */
   align?: 'start' | 'center'
 }
 
 /**
- * Meta-línea de la fila de partido — solo Equipo (§ 10.3): fecha + competición.
- * Una sola línea, nunca envuelve (si envolviera, el marcador se desalinea de
- * su equipo en compacta, § 7.0).
+ * Meta-línea de la fila de partido — solo Equipo (§ 10.3): fecha + hora +
+ * competición, en ese orden. Una sola línea, nunca envuelve; el nombre de
+ * competición (el segmento más ancho y variable) es el que cede si hace falta
+ * truncar — en la práctica casi nunca pasa (§ 10.3, contención).
  */
-export function MatchMetaLine({ dateLabel, competition, align = 'start' }: MatchMetaLineProps) {
+export function MatchMetaLine({ fixture, align = 'start' }: MatchMetaLineProps) {
+  const dateLabel = fixture.kickoff ? formatShortNumericDate(new Date(fixture.kickoff)) : '—'
+  const timeLabel = formatKickoffTime(fixture.kickoff)
+
   return (
     <div
-      className={`tnum flex min-w-0 items-center gap-2 overflow-hidden text-xs whitespace-nowrap ${
+      className={`flex min-h-6 min-w-0 items-center gap-2 overflow-hidden text-xs font-semibold tracking-[0.04em] text-text-3 ${
         align === 'center' ? 'justify-center' : 'justify-start'
       }`}
     >
-      <span className="font-medium text-text-2">{dateLabel}</span>
-      <span aria-hidden="true" className="text-text-3">
+      <span className="tnum shrink-0">{dateLabel}</span>
+      <span aria-hidden="true" className="shrink-0">
         ·
       </span>
+      <span className="tnum shrink-0">{timeLabel}</span>
+      <span aria-hidden="true" className="shrink-0">
+        ·
+      </span>
+      <CompetitionMarkIcon
+        competitionId={fixture.competition.id}
+        className="h-[18px] w-[18px] shrink-0"
+      />
       <Link
-        to={`/competicion/${competition.id}`}
-        className="link-underline truncate font-semibold tracking-[0.04em] text-text-2 uppercase"
+        to={`/competicion/${fixture.competition.id}`}
+        className="link-underline min-w-0 truncate"
       >
-        {competition.shortName}
+        {fixture.competition.shortName}
       </Link>
     </div>
   )

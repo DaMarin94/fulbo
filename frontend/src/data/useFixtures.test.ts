@@ -74,7 +74,7 @@ describe('useCompetitionById / useTeamById', () => {
     const unsubscribe = subscribeToasts(listener)
     const { result } = renderHook(() => useCompetitionById('primera-a'))
     await waitFor(() => expect(result.current.status).toBe('success'))
-    expect(result.current.data?.shortName).toBe('PRIMERA A')
+    expect(result.current.data?.shortName).toBe('Primera A')
     expect(listener).not.toHaveBeenCalled()
     unsubscribe()
   })

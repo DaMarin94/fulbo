@@ -17,7 +17,8 @@ interface TeamScreenProps {
 /**
  * Equipo (RF-004, RF-005, docs/design.md § 10.3). Fixture propio de un
  * equipo (incluido el favorito), lista plana cronológica ascendente, con
- * meta-línea (fecha + competición) por fila y el corte `PRÓXIMOS` (§ 7.6).
+ * meta-línea (fecha + hora + competición) por fila y el corte `PRÓXIMOS`
+ * (§ 7.6).
  */
 export function TeamScreen({ now = new Date() }: TeamScreenProps = {}) {
   const { teamId = '' } = useParams()
@@ -56,13 +57,7 @@ export function TeamScreen({ now = new Date() }: TeamScreenProps = {}) {
                       <ProximosBanner />
                     </div>
                   )
-                return (
-                  <MatchRow
-                    key={item.key}
-                    fixture={item.fixture}
-                    metaLine={{ dateLabel: item.dateLabel }}
-                  />
-                )
+                return <MatchRow key={item.key} fixture={item.fixture} showMetaLine />
               })}
             </div>
           )}

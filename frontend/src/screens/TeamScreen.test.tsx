@@ -40,7 +40,7 @@ describe('TeamScreen', () => {
   it('cada fila trae su meta-línea con la competición como link', async () => {
     renderAt('river-plate')
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
-    expect(screen.getAllByRole('link', { name: 'PRIMERA A' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('link', { name: 'Primera A' }).length).toBeGreaterThan(0)
   })
 
   it('el equipo favorito no lleva ningún resaltado especial (RF-005)', async () => {

@@ -117,3 +117,20 @@ export function formatFullDateProse(date: Date, today: Date = new Date()): strin
 export function capitalize(text: string): string {
   return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1)
 }
+
+/**
+ * Hora del partido en formato HH:mm de 24hs (docs/design.md § 4.2, `tabular-nums`
+ * se aplica en el componente que la muestra, no acá). RN-005 — se muestra en la
+ * zona horaria del dispositivo del usuario. "—" cuando no hay hora conocida
+ * (estado "a confirmar", § 7.2).
+ */
+export function formatKickoffTime(kickoff: string | null): string {
+  if (!kickoff) return '—'
+  const date = new Date(kickoff)
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    hourCycle: 'h23',
+  }).format(date)
+}

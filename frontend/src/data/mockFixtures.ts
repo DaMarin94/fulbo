@@ -33,17 +33,17 @@ export const MOCK_ERROR_TEAM_ID = 'mock-error-team'
 export const PRIMERA_A: Competition = {
   id: 'primera-a',
   name: 'Primera A — Argentina',
-  shortName: 'PRIMERA A',
+  shortName: 'Primera A',
 }
 export const LIBERTADORES: Competition = {
   id: 'libertadores',
   name: 'Copa Libertadores',
-  shortName: 'LIBERTADORES',
+  shortName: 'Libertadores',
 }
 export const SUDAMERICANA: Competition = {
   id: 'sudamericana',
   name: 'Copa Sudamericana',
-  shortName: 'SUDAMERICANA',
+  shortName: 'Sudamericana',
 }
 
 const teams = {

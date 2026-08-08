@@ -2,22 +2,13 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { buildCompetitionListItems } from './competitionListItems'
 import { DrillDownHeader } from '../components/DrillDownHeader'
+import { GroupSubtitulo, GroupTitular } from '../components/GroupHeading'
 import { MatchRow } from '../components/MatchRow'
 import { ProximosBanner } from '../components/ProximosBanner'
 import { EmptyState } from '../components/states/EmptyState'
 import { ErrorState } from '../components/states/ErrorState'
 import { FixturesSkeleton } from '../components/states/FixturesSkeleton'
 import { useCompetitionById, useFixturesByCompetition } from '../data/useFixtures'
-
-function DayHeader({ label }: { label: string }) {
-  return (
-    <div className="flex min-h-11 items-center border-b border-border bg-surface-2 px-3">
-      <span className="tnum text-xs font-semibold tracking-[0.04em] text-text-2 uppercase">
-        {label}
-      </span>
-    </div>
-  )
-}
 
 interface CompetitionScreenProps {
   /** Referencia de "ahora" para el corte PRÓXIMOS — seam de testing. */
@@ -26,7 +17,9 @@ interface CompetitionScreenProps {
 
 /**
  * Competición (RF-003, docs/design.md § 10.2). Partidos de una competición,
- * agrupados por fecha, abriendo posicionados en el corte `PRÓXIMOS` (§ 7.6).
+ * agrupados por fecha y subagrupados por horario dentro de cada fecha (la
+ * hora salió del bloque de partido, § 7.0), abriendo posicionados en el corte
+ * `PRÓXIMOS` (§ 7.6).
  */
 export function CompetitionScreen({ now = new Date() }: CompetitionScreenProps = {}) {
   const { competitionId = '' } = useParams()
@@ -60,7 +53,13 @@ export function CompetitionScreen({ now = new Date() }: CompetitionScreenProps =
             <div>
               {items.map((item) => {
                 if (item.type === 'day-header')
-                  return <DayHeader key={item.key} label={item.label} />
+                  return (
+                    <GroupTitular key={item.key} label={item.label} tabular isFirst={item.isFirst} />
+                  )
+                if (item.type === 'time-subheader')
+                  return (
+                    <GroupSubtitulo key={item.key} label={item.label} tabular isFirst={item.isFirst} />
+                  )
                 if (item.type === 'proximos-banner')
                   return (
                     <div key={item.key} ref={bannerRef} className="scroll-mt-14">

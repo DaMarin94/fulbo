@@ -85,7 +85,7 @@ describe('fixturesApi', () => {
       expect(competition).toEqual({
         id: 'primera-a',
         name: 'Primera A — Argentina',
-        shortName: 'PRIMERA A',
+        shortName: 'Primera A',
       })
     })
 

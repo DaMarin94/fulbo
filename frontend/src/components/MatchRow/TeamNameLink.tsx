@@ -17,9 +17,11 @@ interface TeamNameLinkProps {
 }
 
 /**
- * Nombre de equipo, link a la pantalla Equipo (§ 3.3). Trunca a una línea con
- * elipsis; el sufijo entre paréntesis está protegido del truncado y solo cede
- * cuando por sí mismo supera la mitad del bloque de nombres (§ 7.5).
+ * Nombre de equipo, link a la pantalla Equipo (§ 3.3). El link ocupa toda la
+ * línea de equipo (28px, § 7.0 / § 6 — área tocable excepción declarada) y
+ * trunca a una línea con elipsis; el sufijo entre paréntesis está protegido
+ * del truncado y solo cede cuando por sí mismo supera la mitad del bloque de
+ * nombres (§ 7.5).
  */
 export function TeamNameLink({ team }: TeamNameLinkProps) {
   const { base, suffix } = splitTeamName(team.name)
@@ -28,7 +30,7 @@ export function TeamNameLink({ team }: TeamNameLinkProps) {
       to={`/equipo/${team.id}`}
       title={team.name}
       aria-label={team.name}
-      className="link-underline flex min-w-0 items-baseline gap-1 py-1 text-base font-medium text-text-1"
+      className="link-underline flex h-7 min-w-0 items-center gap-1 text-base font-medium text-text-1"
     >
       <span className="min-w-0 truncate">{base}</span>
       {suffix && <span className="max-w-[50%] shrink-0 truncate">{suffix}</span>}

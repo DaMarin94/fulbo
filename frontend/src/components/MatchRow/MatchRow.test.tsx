@@ -2,9 +2,9 @@ import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { MatchRow } from './MatchRow'
-import { formatKickoffTime } from './matchRowPresentation'
 import type { Fixture } from '../../types/fixture'
 import { PRIMERA_A } from '../../data/mockFixtures'
+import { formatKickoffTime, formatShortNumericDate } from '../../lib/dateFormat'
 
 const HOME = { id: 'river-plate', name: 'River Plate' }
 const AWAY = { id: 'central-cordoba-sde', name: 'Central Córdoba (SdE)' }
@@ -13,6 +13,7 @@ const KICKOFF = '2026-08-07T18:00:00Z'
 // el string esperado (dependería del TZ de quien corra los tests): se deriva con
 // la misma función que usa el componente.
 const KICKOFF_LOCAL_LABEL = formatKickoffTime(KICKOFF)
+const KICKOFF_DATE_LABEL = formatShortNumericDate(new Date(KICKOFF))
 
 function fixture(overrides: Partial<Fixture>): Fixture {
   return {
@@ -29,10 +30,10 @@ function fixture(overrides: Partial<Fixture>): Fixture {
   }
 }
 
-function renderRow(f: Fixture, metaLine?: { dateLabel: string }) {
+function renderRow(f: Fixture, showMetaLine = false) {
   return render(
     <MemoryRouter>
-      <MatchRow fixture={f} metaLine={metaLine} />
+      <MatchRow fixture={f} showMetaLine={showMetaLine} />
     </MemoryRouter>,
   )
 }
@@ -64,44 +65,38 @@ describe('MatchRow', () => {
     const wide = screen.getByTestId('match-row-wide')
     expect(within(compact).queryByText('0')).not.toBeInTheDocument()
     expect(within(compact).queryByText('-')).not.toBeInTheDocument()
-    // El eje amplio muestra la hora (§ 8.4) en vez del marcador.
-    expect(within(wide).getByText(KICKOFF_LOCAL_LABEL)).toBeInTheDocument()
+    // La hora no vive en el bloque (§ 7.0): programado tampoco muestra ningún estado.
+    ;['Finalizado', 'En vivo', 'Entretiempo', 'Postergado', 'Suspendido', 'Cancelado', 'A confirmar'].forEach(
+      (label) => expect(screen.queryByText(label)).not.toBeInTheDocument(),
+    )
+    expect(within(wide).getByText('–')).toBeInTheDocument()
   })
 
-  it('un partido en vivo muestra EN VIVO y el minuto (embebido en amplia, aparte en compacta)', () => {
+  it('un partido en vivo muestra "En vivo · <minuto>\'" igual en las dos disposiciones', () => {
     renderRow(fixture({ status: 'live', minute: 68, homeScore: 1, awayScore: 0 }))
-    const compact = screen.getByTestId('match-row-compact')
-    const wide = screen.getByTestId('match-row-wide')
-    expect(within(compact).getByText('EN VIVO')).toBeInTheDocument()
-    expect(within(compact).getByText("68'")).toBeInTheDocument()
-    expect(within(wide).getByText("EN VIVO · 68'")).toBeInTheDocument()
+    expect(screen.getAllByText("En vivo · 68'")).toHaveLength(2)
   })
 
-  it('un partido finalizado muestra FIN en compacta (sin franja) y en la fila 3 amplia', () => {
+  it('entretiempo nunca lleva minuto', () => {
+    renderRow(fixture({ status: 'halftime', minute: 45, homeScore: 0, awayScore: 0 }))
+    expect(screen.getAllByText('Entretiempo')).toHaveLength(2)
+    expect(screen.queryByText(/45/)).not.toBeInTheDocument()
+  })
+
+  it('un partido finalizado muestra "Finalizado" (nunca "FIN")', () => {
     renderRow(fixture({ status: 'finished', homeScore: 2, awayScore: 1 }))
-    const compact = screen.getByTestId('match-row-compact')
-    const wide = screen.getByTestId('match-row-wide')
-    expect(within(compact).getByText('FIN')).toBeInTheDocument()
-    expect(within(wide).getByText('FIN')).toBeInTheDocument()
-    expect(screen.queryByText('FINALIZADO')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Finalizado')).toHaveLength(2)
+    expect(screen.queryByText('FIN')).not.toBeInTheDocument()
   })
 
   it.each([
-    ['postponed', 'POSTERGADO'],
-    ['suspended', 'SUSPENDIDO'],
-    ['cancelled', 'CANCELADO'],
-    ['tbd', 'A CONFIRMAR'],
-  ] as const)(
-    'estado %s muestra la etiqueta completa "%s" en las dos disposiciones',
-    (status, label) => {
-      renderRow(fixture({ status }))
-      expect(screen.getAllByText(label)).toHaveLength(2)
-    },
-  )
-
-  it('a confirmar muestra "—" en la hora de la ranura compacta y del eje amplio', () => {
-    renderRow(fixture({ status: 'tbd', kickoff: null }))
-    expect(screen.getAllByText('—')).toHaveLength(2)
+    ['postponed', 'Postergado'],
+    ['suspended', 'Suspendido'],
+    ['cancelled', 'Cancelado'],
+    ['tbd', 'A confirmar'],
+  ] as const)('estado %s muestra la etiqueta capitalizada "%s" en las dos disposiciones', (status, label) => {
+    renderRow(fixture({ status }))
+    expect(screen.getAllByText(label)).toHaveLength(2)
   })
 
   it('el nombre completo queda en el atributo title, aunque se trunque visualmente', () => {
@@ -119,37 +114,28 @@ describe('MatchRow', () => {
       expect(within(wide).queryByText('—')).not.toBeInTheDocument()
     })
 
-    it('la hora aparece en la fila de estado cuando el eje ya muestra el marcador', () => {
-      renderRow(
-        fixture({
-          status: 'finished',
-          homeScore: 1,
-          awayScore: 0,
-          kickoff: '2026-08-07T18:00:00Z',
-        }),
-      )
-      const wide = screen.getByTestId('match-row-wide')
-      expect(within(wide).getByText(KICKOFF_LOCAL_LABEL)).toBeInTheDocument()
-      expect(within(wide).getByText('FIN')).toBeInTheDocument()
-    })
-
-    it('no repite la hora cuando el eje ya la mostró (programado)', () => {
-      renderRow(fixture({ status: 'scheduled', kickoff: '2026-08-07T18:00:00Z' }))
-      const wide = screen.getByTestId('match-row-wide')
-      expect(within(wide).getAllByText(KICKOFF_LOCAL_LABEL)).toHaveLength(1)
-    })
-
-    it('sin meta-línea, sin fila 1 (Inicio y Competición)', () => {
+    it('sin meta-línea, no muestra el nombre de la competición (Inicio y Competición)', () => {
       renderRow(fixture({ status: 'scheduled' }))
-      expect(screen.queryByText('PRIMERA A')).not.toBeInTheDocument()
+      expect(screen.queryByText('Primera A')).not.toBeInTheDocument()
     })
 
-    it('con meta-línea (Equipo), muestra fecha + competición como link, centrada', () => {
-      renderRow(fixture({ status: 'scheduled' }), { dateLabel: 'dom 19/04' })
+    it('con meta-línea (Equipo), muestra fecha + hora + competición como link, centrada', () => {
+      renderRow(fixture({ status: 'scheduled' }), true)
       const wide = screen.getByTestId('match-row-wide')
-      expect(within(wide).getByText('dom 19/04')).toBeInTheDocument()
-      const competitionLink = within(wide).getByRole('link', { name: 'PRIMERA A' })
+      expect(within(wide).getByText(KICKOFF_DATE_LABEL)).toBeInTheDocument()
+      expect(within(wide).getByText(KICKOFF_LOCAL_LABEL)).toBeInTheDocument()
+      const competitionLink = within(wide).getByRole('link', { name: 'Primera A' })
       expect(competitionLink).toHaveAttribute('href', '/competicion/primera-a')
+    })
+
+    it('con meta-línea también en compacta', () => {
+      renderRow(fixture({ status: 'scheduled' }), true)
+      const compact = screen.getByTestId('match-row-compact')
+      expect(within(compact).getByText(KICKOFF_DATE_LABEL)).toBeInTheDocument()
+      expect(within(compact).getByRole('link', { name: 'Primera A' })).toHaveAttribute(
+        'href',
+        '/competicion/primera-a',
+      )
     })
   })
 })

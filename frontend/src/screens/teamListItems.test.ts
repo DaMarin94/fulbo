@@ -43,16 +43,10 @@ describe('buildTeamListItems', () => {
     )
   })
 
-  it('cada fila trae su fecha ya formateada en forma numérica corta', () => {
-    const items = buildTeamListItems([fixture({ kickoff: '2026-04-19T15:00:00Z' })], NOW)
+  it('cada fila trae el fixture completo, sin formatear nada de presentación', () => {
+    const items = buildTeamListItems([fixture({ id: '1', kickoff: '2026-04-19T15:00:00Z' })], NOW)
     const row = items.find((item) => item.type === 'fixture')
-    expect(row).toMatchObject({ dateLabel: 'dom 19/04' })
-  })
-
-  it('"a confirmar" (sin fecha) muestra "—" en la meta-línea', () => {
-    const items = buildTeamListItems([fixture({ kickoff: null, status: 'tbd' })], NOW)
-    const row = items.find((item) => item.type === 'fixture')
-    expect(row).toMatchObject({ dateLabel: '—' })
+    expect(row).toMatchObject({ type: 'fixture', fixture: { id: '1' } })
   })
 
   it('inserta el corte PRÓXIMOS en la posición cronológica correcta', () => {
@@ -70,5 +64,9 @@ describe('buildTeamListItems', () => {
       NOW,
     )
     expect(items.map((item) => item.type)).toEqual(['fixture', 'proximos-banner', 'fixture'])
+  })
+
+  it('lista vacía da lista de items vacía', () => {
+    expect(buildTeamListItems([], NOW)).toEqual([])
   })
 })

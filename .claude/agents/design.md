@@ -50,9 +50,9 @@ Toda decisión y todo hallazgo se justifica contra estos principios, no contra e
 Salen del handoff de diseño. No se negocian sin decisión explícita del usuario:
 
 - **Verde = en vivo / éxito. Rojo = error / falla / destructivo. Ámbar = advertencia / dato anómalo.** Reservados **estrictamente** para ese significado. No se usan para nada más, en ningún modo.
-- **El acento de marca (violeta) es solo marca y afordancia.** NUNCA tiñe un dato ni comunica estado: prohibido en resultados, horarios, nombres de equipo, nombres de competición y badges de estado. Se permite en wordmark, anillo de foco, subrayado de link en hover/focus y píldora del día activo — nada más.
+- **El acento de marca (violeta) es solo marca y afordancia.** NUNCA tiñe un dato ni comunica estado: prohibido en resultados, horarios, nombres de equipo, nombres de competición y badges de estado. Se permite **solo** en los seis usos de la lista cerrada de `docs/design.md` § 3.2: wordmark, anillo de foco, subrayado de link en hover/focus/active, indicador de selección de un control de opciones excluyentes, estado presionado de un control y borde de un control en hover — nada más. Un uso nuevo entra por esa lista o no entra.
 - **Los resultados son neutros: el ganador no se pinta de verde ni el perdedor de rojo.** La diferencia se comunica con peso tipográfico, jamás con color semántico.
-- **Todo dato numérico usa números tabulares** (`tabular-nums`): horarios, marcadores, minuto de juego, fechas numéricas, contador de cuota. Familia única: Inter Variable.
+- **Todo dato numérico usa números tabulares** (`tabular-nums`): horarios, marcadores, minuto de juego, fechas numéricas. Familia única: Inter Variable.
 - **Nada se comunica solo por color.** Todo estado con color lleva además texto, icono o forma.
 - **Los escudos y logos de equipos/competiciones se muestran tal cual los provee la fuente.** No se recolorean, no se tiñen con la marca, no se les aplica filtro por modo.
 - **Todo elemento interactivo declara sus cinco estados** (reposo, hover, focus, activo, deshabilitado) y su forma en modo claro **y** oscuro. Foco siempre visible; `outline: none` está prohibido.
